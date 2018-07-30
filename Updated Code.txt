@@ -1,0 +1,427 @@
+
+#define LM1 5 // left motor IN1
+#define LM2 4 // left motor IN1
+#define RM1 7 // right motor IN3
+#define RM2 6 // right motor IN4
+#define Led 3
+#define trigPin 12
+#define echoPin 11
+#define WriteSpeed 9600
+#define Seq 13//left
+#define Select 8//right
+
+#define Size_Of_Robot+10 /*---------------------------------------------------*/
+
+
+//function prototypes
+int ReadButton(int);
+bool TurnLeft();
+bool TurnRight();
+bool Forward();
+bool Reverse();
+bool Stop();
+void error();
+int RightDist, LeftDist;
+int Speed = 200;
+int duration, distance;
+bool result;
+
+bool check_collision();
+void Left_Parking();
+bool Reverse_Left_Direction();
+void Parking_Exit_Left();
+void Right_Parking();
+bool Reverse_Right_Direction();
+void Parking_Exit_Right();
+
+
+
+
+void setup() {
+  Serial.begin(WriteSpeed);
+  pinMode(LM1, OUTPUT);
+  pinMode(LM2, OUTPUT);
+  pinMode(RM1, OUTPUT);
+  pinMode(RM2, OUTPUT);
+  pinMode(Led, OUTPUT);
+  //set all motor pins to output
+  analogWrite(9, Speed); //set 100 to pin 9 which is the speed of motor A
+  analogWrite(10, Speed); //set 100 to pin 10 which is the speed of motor B
+
+  //ULTRASONIC 
+  pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+  Serial.begin(9600); // Starts the serial communication
+
+  
+  
+  pinMode(Seq, INPUT);
+  pinMode(Select, INPUT);
+
+}
+
+void loop() {
+  
+
+  // Clears the trigPin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  distance = duration * 0.034 / 2;
+  
+  //ULTRASONIC
+  distance= GetDistance(4,11); //Calculating the distance from the robot to the object
+  Serial.print("Distance: ");
+  Serial.println(distance);
+
+  
+//Reading the option 
+result=(bool)ReadButton(Seq); 
+
+switch (result)
+{
+	case 1: 
+		Left_Parking();
+		break;
+		
+	case 2:
+		Right_Parking();
+		break;
+	
+	
+	case 3: 
+		Parking_Exit_Left();
+		break;
+		
+	case 4:
+		Parking_Exit_Right();
+		break;
+		
+	default:
+		Forward();
+
+}
+
+}
+
+/************************************** LEFT PARKING ***************************************/
+void Left_Parking()
+{
+	bool a = 1;
+	while (a == 1)
+	{
+	//Checking for the object 
+	bool Collision_Check_Result = check_collision();
+	
+	if (!Collision_Check_Result){
+	//Moving forward
+	Forward();
+	
+	/* -------------------- Detect parking using the IR sensor ------------------ */
+	
+	
+	
+	
+	
+	/* ------------------- Checking if Parking space is big enough ------------------ */
+	if (      > Size_Of_Robot) // if (space > Size_Of_Robot)
+		{a = 0;}
+	}
+	}
+	
+	//Parking the robot
+	Forward();
+	delay(300); /*------------- Adjust the delay according to the testing -------- */
+	
+	//Reverse Turn the wheels Towards Left Direction
+	Reverse_Left_Direction();
+  
+	/* ---------------- Calculate the distance Using IR sensor --------------- */
+	
+
+
+
+	
+	/* ----------------- when the robot is close to the wall-STOP --------------*/
+	if (        ) /* -------------- IR distance is less than ---------- */
+	Stop();
+	
+}
+/************************************** END OF LEFT PARKING ***************************************/
+
+bool Reverse_Left_Direction()
+{
+  digitalWrite(LM1, HIGH);
+  digitalWrite(LM2, HIGH);
+  digitalWrite(RM1, HIGH);
+  digitalWrite(RM2, LOW);
+  return true;
+
+}
+	
+/************************************** RIGHT PARKING ***************************************/
+void Right_Parking()
+{
+	bool a = 1;
+	while (a == 1)
+	{
+	//Checking for the object 
+	bool Collision_Check_Result = check_collision();
+	
+	if (!Collision_Check_Result){
+	//Moving forward
+	Forward();
+	
+	/* -------------------- Detect parking using the IR sensor ------------------ */
+	
+	
+	
+	
+	
+	//Checking if Parking space is big enough
+	if ( > Size_Of_Robot) //If ( space_available > Size_Of_Robot)
+		{a = 0;}
+	}
+	}
+	
+	//Parking the robot
+	Forward();
+	delay(300); /*------------- Adjust the delay according to the testing -------- */
+	
+	// Turning the wheels towards right direction where the parking is present and reversing into it
+	Reverse_Right_Direction();
+
+  
+	/* ---------------- Calculate the distance Using IR sensor --------------- */
+
+
+	
+	
+	/* ----------------- when the robot is close to the wall-STOP --------------*/
+	if (       ) /* -------------- IR distance is less than (testing distance) then Stop() ---------- */
+	Stop();
+	
+}
+/************************************** END OF RIGHT PARKING ***************************************/
+
+bool Reverse_Right_Direction()
+{
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, HIGH);
+  digitalWrite(RM1, HIGH);
+  digitalWrite(RM2, HIGH);
+  return true;
+
+}
+
+
+
+/* ************************************* Parking_Exit_Left ******************************************/
+void Parking_Exit_Left()
+{
+	bool Collision_Check_Result = check_collision(); //Checking the obstacles through Ultrasonic Sensor
+	if (!Collision_Check_Result)
+	{
+		Forward();
+		delay(500); /* ---------- Adjust the delay for moving forward for approx 5 cm and if done, we need to turn left ------- */
+		TurnLeft();
+		
+		/* --------------------------------------
+		We can play with the delay and move the wheels in forward direction OR we can check 
+		for value if the back IR sensor has value more than the Size_Of_Robot then go forward()
+		------------------------------------------ */
+		if (   > Size_Of_Robot ) //back IR value is > Size_Of_Robot
+		{ Forward(); }
+		
+		delay(500); /* -------- While testing , we need to adjust to make the robot stop after how long ----- */
+		Stop();
+	}
+}
+/* ************************************* END OF Parking_Exit_Left ******************************************/
+
+
+
+/* ************************************* Parking_Exit_Right ******************************************/
+void Parking_Exit_Right()
+{
+	bool Collision_Check_Result = check_collision(); //Checking the obstacles through Ultrasonic Sensor
+	if (!Collision_Check_Result)
+	{
+		Forward();
+		delay(500); /* ---------- Adjust the delay for moving forward for approx 5 cm and if done, we need to turn left ------- */
+		Right();
+		
+		/* --------------------------------------
+		We can play with the delay and move the wheels in forward direction OR we can check 
+		for value if the back IR sensor has value more than the Size_Of_Robot then go forward()
+		------------------------------------------ */
+		if (   > Size_Of_Robot) //back IR value is > Size_Of_Robot
+		{ Forward(); }
+		
+		delay(500); /* -------- While testing , we need to adjust to make the robot stop after how long ----- */
+		Stop();
+	}
+}
+/* ************************************* END OF Parking_Exit_Right ******************************************/
+
+
+
+
+bool check_collision()
+{
+
+/************************************************************/
+//Assuming Result is same as distance 
+	result = distance;
+/************************************************************/
+	
+    
+	result = distance < 10;
+    if (result) {
+      result = Reverse();
+      delay(1000);
+      if (result)
+      {
+        result = TurnRight();
+        
+        if (result)
+        {
+          result = TurnLeft();
+          
+          
+          if (result)
+          {
+            //check that at least one distance is more than 20
+            if(RightDist>20||LeftDist>20)
+            {
+              if(RightDist>LeftDist)
+              {
+                TurnRight();
+                
+              }
+              else{
+                TurnLeft();
+              }
+            }
+          }
+
+        }
+        else
+          {error();return true;}
+      }
+      else
+        {error();return true;}
+
+
+
+    }
+    else
+      {error();return true;}
+
+  
+  
+if(ReadButton(Select))
+{
+  while(1){
+    LedOn();
+    delay(1000);
+    LedOff();
+    delay(1000);
+    
+  }
+}
+return false;
+}
+
+
+// turn left function
+bool TurnLeft() {
+  digitalWrite(LM1, HIGH);
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, HIGH);
+  delay(1500);
+  Stop();
+  //ultrasonic
+  // Clears the trigPin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  LeftDist = duration * 0.034 / 2;
+  return true;
+}
+
+// turn Right function
+bool TurnRight() {
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, HIGH);
+  digitalWrite(RM1, HIGH);
+  digitalWrite(RM2, LOW);
+  delay(750);
+  Stop();
+  //ultrasonic
+  // Clears the trigPin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  RightDist = duration * 0.034 / 2;
+  return true;
+}
+
+// Forward function
+bool Forward() {
+  digitalWrite(LM1, HIGH);
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, HIGH);
+  digitalWrite(RM2, LOW);
+  return true;
+}
+
+//Stop function
+bool Stop() {
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, LOW);
+  return true;
+}
+
+// reverse function
+bool Reverse() {
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, HIGH);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, HIGH);
+
+  return true;
+}
+
+void LedOn()
+{digitalWrite(Led, HIGH); }
+
+void LedOff()
+{digitalWrite(Led, LOW); }
+
+int ReadButton(int pin)
+{return digitalRead(pin); }
+
+void error() 
+{LedOn(); }
