@@ -53,7 +53,16 @@ Wheel:: Wheel(int pm1, int pm2, int ps, int ws)
   pinMode(this->m2Pin, OUTPUT);
   SetMovement(ws);
 }
+Wheel::Wheel()
+{
+  this->m1Pin = 0;
+  this->m2Pin = 0;
+  this->sPin  = 0;
 
+  pinMode(this->m1Pin, OUTPUT);
+  pinMode(this->m2Pin, OUTPUT);
+  SetMovement(0);
+}
 void Wheel::SetMovement(int ms)
 { this->mSpeed = ms;
 
@@ -107,7 +116,7 @@ Car:: Car(int FR, int FL, int BR, int BL , int sPin, int mSpeed)
 {
   //Wheel(int pm1, int pm2, int ps, int ws)
   this->Right.setValues(FR,BR,sPin,mSpeed);
-
+  this->Left.setValues(FL,BL,sPin,mSpeed);
 }
 
 void Car::setRight(int speed) {

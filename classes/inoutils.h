@@ -22,6 +22,7 @@ class Wheel
     //Stores the speed(-255 -> 255), where negative values indicate reverse direction.
     Wheel(int pm1, int pm2, int ps, int ws);
     void setValues(int pm1, int pm2, int ps, int ws);
+    Wheel();
 
     //Sets the movement direction and speed of the wheel motor. Speed is passed as an absolute value
     //Positive speed means forward, negative speed means reverse movement.
