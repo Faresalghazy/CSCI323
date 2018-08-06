@@ -20,9 +20,10 @@ UltrasonicSensor USS(USTrig, USEcho);
 MicroServo ms(MSPIN, 90);
 Led led(NULL);
 
-void LookRight(MicroServo m)
+bool LookRight(MicroServo m)
 {
   m.SetAngle(0);
+  return true;
 
 }
 
@@ -30,7 +31,15 @@ void LookLeft(MicroServo m)
 {
   m.SetAngle(180);
 }
-
+void Lookleft(MicroServo m)
+{
+  m.SetAngle(180);
+}
+bool void LookAhead(MicroServo m)
+{
+  m.SetAngle(90);
+  return True;
+}
 void Error(Led L)
 {
   L.set(true); //turn on led
@@ -82,7 +91,7 @@ void loop() {
     Error(led);
 
 
-//seq1
+  //seq1
   if (pressed1)
   {
     LeftDist1 = USS.GetDistance();
@@ -116,6 +125,63 @@ void loop() {
       {
         Error(led);
       }
+    }
+  }
+
+  //seq2
+  if (pressed2)
+  {
+    if (LookAhead(ms))
+    {
+      if (Lookleft(ms))
+      {
+        Forward(car);
+        delay(300);
+        car.setRight(200);
+        delay(300);
+        Stop(car);
+        Forward(car);
+        delay(3000);
+        Stop(car);
+      }
+      else {
+        Error(led);
+      }
+    }
+    else {
+      Error(led);
+    }
+  }
+
+  //seq3
+  if (pressed3)
+  {
+    if (LookAhead(ms))
+    {
+      if (Lookleft(ms))
+      {
+        if (LookRight(ms)
+      {
+        Forward(car);
+          delay(300);
+          car.setLeft(200);
+          delay(300);
+          Stop(car);
+          Forward(car);
+          delay(3000);
+          Stop(car);
+        }
+        else
+        {
+          Error(led);
+        }
+      }
+      else {
+        Error(led);
+      }
+    }
+    else {
+      Error(led);
     }
   }
 }
