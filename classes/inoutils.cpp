@@ -85,7 +85,7 @@ void Wheel::setValues(int pm1, int pm2, int ps, int ws)
   SetMovement(ws);
 
 }
-MicroServo:: ServoMotor(int angle, int sp)
+MicroServo:: MicroServo(int angle, int sp)
 { this->angle = angle;
   this->sPin  = sp;
 

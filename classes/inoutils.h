@@ -80,7 +80,7 @@ class MicroServo
 
   public:
     //Creating a servo instance
-    ServoMotor(int angle, int sp);
+    MicroServo(int angle, int sp);
 
     //Setting the angle
     void SetAngle(int angle);
