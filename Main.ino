@@ -3,17 +3,19 @@
 #define B1 NULL
 #define B2 NULL
 #define B3 NULL
+#define MS //MicroServo
 #define USTrig NULL
 #define USEcho NULL
 #define ERRLED NULL //Error Led
+
 //Need movement functions to return true for decision tree format
-int LookRight(MicroServo m,UltrasonicSensor us)
+int LookRight(MicroServo m, UltrasonicSensor us)
 {
   m.SetAngle(0);
   return us.GetAngle();
 }
 
-int LookLeft(MicroServo m,UltrasonicSensor us)
+int LookLeft(MicroServo m, UltrasonicSensor us)
 {
   m.SetAngle(180);
   return us.GetAngle();
@@ -46,7 +48,8 @@ void setup() {
   Button Btn3(B3);
 
   Car car(FR, FL, BR, BL, sPin, speed);
-
+  UltraSonicSensor USS(USTrig, USEcho);
+  MicroServo(MS, 90);
 
 }
 
